@@ -1,89 +1,140 @@
 # Hello Agents
 
-一个基于 Node.js + TypeScript 的 Agent 学习与实践项目。
+Hello Agents is a TypeScript Agent Runtime Playground for experimenting with agent execution loops, tool calls, middleware hooks, planning, reflection, and execution traces.
 
-本项目的目标是结合 Datawhale 的 Hello-Agents 教程进行动手实现，重点关注：
-- Agent 基础抽象（`Agent`、`Message`、`LLM`、`Tool`）
-- ReAct / Plan-and-Solve / Reflection 等常见智能体范式
-- 通过真实代码将提示词设计、工具调用、任务分解和迭代优化串起来
+It is not intended to be a full production agent framework. The project is a small, inspectable playground for learning how an agent runtime is structured and for testing different runtime behaviors in real code.
 
-参考学习资料：  
-[Hello-Agents（Datawhale）](https://datawhalechina.github.io/hello-agents/#/./README)
+## Why This Exists
 
-## 技术栈
+Modern agent systems are usually built around a shared runtime instead of many isolated agent classes. The runtime owns the execution loop, while planning, reflection, retry, guardrails, logging, and tracing are added through middleware or presets.
 
-- Node.js（建议 20+）
-- TypeScript
-- `tsx`（直接运行 `.ts` 入口文件）
-- OpenAI SDK（兼容 OpenAI 风格 API）
-- SerpAPI（用于搜索工具）
+This project explores that design in TypeScript.
 
-## 快速开始
+## What You Can Experiment With
 
-### 1) 安装依赖
+- Agent execution loops
+- OpenAI-compatible model calls
+- Tool registration and execution
+- ReAct-style tool use
+- Plan-and-Solve workflows
+- Reflection and refinement loops
+- Middleware and lifecycle hook design
+- Runtime state and execution traces
+
+## Core Concepts
+
+| Concept | Responsibility |
+| --- | --- |
+| Agent | Declarative configuration: name, instructions, model, tools, middleware, options |
+| Runtime | Runs the agent loop and coordinates model calls, tool calls, hooks, state, and stop conditions |
+| Model | Adapts OpenAI-compatible or local LLM providers behind a stable interface |
+| Tool | External capability callable by the agent |
+| Tool Registry | Registers, describes, looks up, and executes tools |
+| Middleware | Adds planning, reflection, retry, guardrails, logging, memory, or human approval |
+| Trace | Records model calls, tool calls, observations, errors, and final output |
+| State | Carries messages, steps, plans, observations, metadata, and runtime limits across a run |
+
+## Architecture
+
+The final runtime architecture is documented in [docs/architecture.md](./docs/architecture.md).
+
+At a high level, the project is organized around:
+
+```text
+Agent + Runtime + Model + Tool + Middleware + Trace + State
+```
+
+ReAct, Plan-and-Solve, and Reflection are treated as reusable runtime presets or middleware combinations on top of one shared runtime.
+
+## Quick Start
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2) 配置环境变量
-
-复制环境变量模板并填写实际值：
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-`.env` 示例字段说明：
+Fill in the required model provider values in `.env`.
 
-- `LLM_API_KEY`: 大模型 API Key
-- `LLM_MODEL_ID`: 模型名称（如 `gpt-4o-mini` 等）
-- `LLM_BASE_URL`: 模型服务地址（兼容 OpenAI API）
-- `TEMPERATURE`: 采样温度
-- `MAX_TOKENS`: 最大输出长度
-- `SERPAPI_API_KEY`: SerpAPI Key（使用搜索工具时需要）
+### 3. Type-check the project
 
-## 运行示例
+```bash
+npm run typecheck
+```
 
-项目当前包含多个可直接执行的入口文件：
+## Environment Variables
 
-### Plan-and-Solve 示例
+| Variable | Required | Description |
+| --- | --- | --- |
+| `LLM_API_KEY` | Yes | API key for the model provider |
+| `LLM_MODEL_ID` | Yes | Model identifier |
+| `LLM_BASE_URL` | Yes | OpenAI-compatible API base URL |
+| `TEMPERATURE` | No | Default sampling temperature |
+| `MAX_TOKENS` | No | Default maximum output tokens |
+| `SERPAPI_API_KEY` | Only for search | SerpAPI key used by the search tool |
 
+## Examples
+
+Run the current Plan-and-Solve example:
 
 ```bash
 npx tsx src/tests/plan_solve_entry.ts
 ```
 
-### Reflection 示例
+Run the current Reflection example:
 
 ```bash
 npx tsx src/tests/reflection_agent_entry.ts
 ```
 
-## 项目结构
+## Project Structure
 
 ```text
 src/
+  core/
+    agent.ts
+    config.ts
+    exception.ts
+    llm.ts
+    message.ts
+
   agents/
     react_agent.ts
     plan_solve_agent.ts
     reflection_agent.ts
-  core/
-    agent.ts
-    message.ts
-    llm.ts
-    config.ts
-    exception.ts
+
   tools/
     base.ts
     register.ts
-    builtin/searchTool.ts
+    builtin/
+      searchTool.ts
+
   tests/
     plan_solve_entry.ts
     reflection_agent_entry.ts
-  index.ts
+
+docs/
+  architecture.md
 ```
 
-## 说明
+## Roadmap
 
-- 本仓库用于学习与实验，适合边看教程边跑代码。  
+- Build a shared `AgentRuntime`.
+- Add explicit runtime context and state objects.
+- Add middleware lifecycle hooks.
+- Add structured trace events and run results.
+- Convert ReAct, Plan-and-Solve, and Reflection into presets over the shared runtime.
+- Add a mock model for deterministic local tests.
+- Add CLI-friendly example commands.
+- Add more built-in tools.
+
+## References
+
+- [Agent Runtime Playground Architecture](./docs/architecture.md)
+- [Hello-Agents by Datawhale](https://datawhalechina.github.io/hello-agents/#/./README)

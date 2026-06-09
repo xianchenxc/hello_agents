@@ -73,7 +73,7 @@ class ReactAgent extends Agent {
             let historyStr = this.currentHistory.join("\n");
             let prompt = this.prompt_template(toolsDesc, inputStr, historyStr);
 
-            const responseText = await this.llm.invoke([{ role: 'user', content: prompt }], options as a);
+            const responseText = await this.llm.invoke([{ role: 'user', content: prompt }], options as any);
             if (!responseText) {
                 console.error("❌ 错误：LLM未能返回有效响应。");
                 break;
