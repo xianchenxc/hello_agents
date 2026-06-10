@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:plan": "tsx src/tests/plan_solve_entry.ts",
+    "dev:reflection": "tsx src/tests/reflection_agent_entry.ts"
   },
   "author": "",
   "license": "ISC",
